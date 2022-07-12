@@ -1,33 +1,33 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include<stdio.h>
+#include<stdlib.h>
 
-typedef struct node
+typedef struct list
 {
     int key;
-    struct node *next;
-    struct node *prev;
-}NodeDL;
+    struct list *next, *prev;
+} nodeT;
 
-void print_forwards(NodeDL **first, NodeDL **last)
+void fprint(nodeT *first)
 {
-    printf("Double linked list is: ");
-    for(NodeDL *a = *first; a != NULL; a = a -> next)
+    printf("Frontwards DLL is: ");
+    for(nodeT *a = first; a != NULL; a = a -> next)
         printf("%d ", a -> key);
+    printf("\n");
 }
 
-void print_backwards(NodeDL **first, NodeDL **last)
+void bprint(nodeT *last)
 {
-    printf("Double linked list is: ");
-    for(NodeDL *a = *last; a != NULL; a = a -> prev)
+    printf("Backwards DLL is: ");
+    for(nodeT *a = last; a != NULL; a = a -> prev)
         printf("%d ", a -> key);
+    printf("\n");
 }
 
-void insert_first(NodeDL **first, NodeDL **last, int x)
+void insert_first(nodeT **first, nodeT **last, int x)
 {
-    NodeDL *p = (NodeDL*)malloc(sizeof(NodeDL));
+    nodeT *p = (nodeT*)malloc(sizeof(nodeT));
     p -> key = x;
-    p -> next = NULL;
-    p -> prev = NULL;
+    p -> next = p -> prev = NULL;
 
     if(*first == NULL)
         *first = *last = p;
@@ -39,12 +39,11 @@ void insert_first(NodeDL **first, NodeDL **last, int x)
     }
 }
 
-void insert_last(NodeDL **first, NodeDL **last, int x)
+void insert_last(nodeT **first, nodeT **last, int x)
 {
-    NodeDL *p = (NodeDL*)malloc(sizeof(NodeDL));
+    nodeT *p = (nodeT*)malloc(sizeof(nodeT));
     p -> key = x;
-    p -> next = NULL;
-    p -> prev = NULL;
+    p -> next = p -> prev = NULL;
 
     if(*first == NULL)
         *first = *last = p;
@@ -56,18 +55,21 @@ void insert_last(NodeDL **first, NodeDL **last, int x)
     }
 }
 
-void insert_after(NodeDL **first, NodeDL **last, int x, int after)
+void insert_after(nodeT **first, nodeT **last, int x, int after)
 {
-    NodeDL *p = (NodeDL*)malloc(sizeof(NodeDL));
+    nodeT *p = (nodeT*)malloc(sizeof(nodeT));
     p -> key = x;
-    p -> next = NULL;
-    p -> prev = NULL;
+    p -> next = p -> prev = NULL;
+    nodeT *q = *first;
 
-    NodeDL *q = *first;
+    while(q != NULL)
+    {
+        if(q -> key == after)
+            break;
+        q = q -> next;
+    }
 
-    if(q == NULL)
-        *first = *last = p;
-    else
+    if(q != NULL)
     {
         p -> prev = q;
         p -> next = q -> next;
@@ -79,57 +81,61 @@ void insert_after(NodeDL **first, NodeDL **last, int x, int after)
     }
 }
 
-void insert_before(NodeDL **first, NodeDL **last, int x, int before)
+void insert_before(nodeT **first, nodeT **last, int x, int before)
 {
-    NodeDL *p = (NodeDL*)malloc(sizeof(NodeDL));
+    nodeT *p = (nodeT*)malloc(sizeof(nodeT));
     p -> key = x;
-    p -> next = NULL;
-    p -> prev = NULL;
+    p -> next = p -> prev = NULL;
+    nodeT *q = *first;
 
-    NodeDL *q = *first;
-
-    if(q == NULL)
-        *first = *last = p;
-    else
+    while(q != NULL)
     {
-        p -> next = q;
+        if(q -> key == before)
+            break;
+        q = q -> next;
+    }
+
+    if(q != NULL)
+    {
         p -> prev = q -> prev;
+        p -> next = q;
         if(q -> prev != NULL)
-            q -> prev -> next = p;
+            p -> prev -> next = p;
         q -> prev = p;
         if(*first == q)
             *first = p;
+
     }
 }
 
-int search(NodeDL **first, NodeDL **last, int x)
+void search(nodeT **first, nodeT **last, int x)
 {
-    NodeDL *q = *first;
-    int k = 0;
+    int k = 1;
+    nodeT *q = *first;
 
-    if(q == NULL)
-        return -1;
-    else
+    while(q != NULL)
     {
-        while(q != NULL)
+        if(q -> key == x)
         {
-            if(q -> key == x)
-                break;
+            printf("\n%d node is at: %d", x, k);
+            return 0;
+        }
+        else
+        {
             q = q -> next;
-                k++;
+            k++;
         }
     }
-    return k;
 }
 
-void delete_first(NodeDL **first, NodeDL **last)
+void delete_first(nodeT **first, nodeT **last)
 {
-    NodeDL *q = *first;
-    NodeDL *p = NULL;
+    nodeT *q = *first;
+    nodeT *p = NULL;
 
     if(q == NULL)
     {
-        puts("EMPTY DLS!");
+        puts("EMPTY DLL!");
         return;
     }
     else
@@ -137,21 +143,21 @@ void delete_first(NodeDL **first, NodeDL **last)
         p = *first;
         *first = (*first) -> next;
         if(*first == NULL)
-            *last == NULL;
+            *last = NULL;
         else
             (*first) -> prev = NULL;
         free(p);
     }
 }
 
-void delete_last(NodeDL **first, NodeDL **last)
+void delete_last(nodeT **first, nodeT **last)
 {
-    NodeDL *q = *last;
-    NodeDL *p = NULL;
+    nodeT *p = NULL;
+    nodeT *q = *first;
 
     if(q == NULL)
     {
-        puts("EMPTY DLS!");
+        puts("EMPTY DLL!");
         return;
     }
     else
@@ -159,17 +165,17 @@ void delete_last(NodeDL **first, NodeDL **last)
         p = *last;
         *last = (*last) -> prev;
         if(*last == NULL)
-            *first == NULL;
+            *first = NULL;
         else
             (*last) -> next = NULL;
         free(p);
     }
 }
 
-void delete_key(NodeDL **first, NodeDL **last, int x)
+void delete_key(nodeT **first, nodeT **last, int x)
 {
-    NodeDL *q = *first;
-    NodeDL *p = NULL;
+    nodeT *p = NULL;
+    nodeT *q = *first;
 
     while(q != NULL)
     {
@@ -178,41 +184,36 @@ void delete_key(NodeDL **first, NodeDL **last, int x)
         q = q -> next;
     }
 
-    if(q -> prev != NULL)
-       q -> prev -> next = q -> next;
-    else
-        *first = q -> next;
+    if(q != NULL)
+    {
+        if(q -> prev != NULL)
+            q -> prev -> next = q -> next;
+        else
+            *first = q -> next;
 
-    if(q -> next != NULL)
-        q -> next -> prev = q -> prev;
-    else
-        *last = q -> prev;
-    free(q);
+        if(q -> next != NULL)
+            q -> next -> prev = q -> prev;
+        else
+            *last = q -> prev;
+        free(q);
+    }
 }
 
 int main()
 {
-    NodeDL *first = NULL;
-    NodeDL *last = NULL;
+    nodeT *first = NULL;
+    nodeT *last = NULL;
 
-    insert_first(&first, &last, 3);
-    insert_first(&first, &last, 7);
-    insert_last(&first, &last, 4);
     insert_first(&first, &last, 10);
-    insert_after(&first, &last, 4, 10);
-    insert_before(&first, &last, 999, 10);
-    print_forwards(&first, &last);
-    printf("\n");
-    print_backwards(&first, &last);
-    printf("\n");
-
-    printf("\n%d\n", search(&first, &last, 3));
-
-    delete_last(&first, &last);
+    insert_last(&first, &last, 20);
+    insert_after(&first, &last, 30, 10);
+    insert_before(&first, &last, 30, 10);
     delete_first(&first, &last);
-    delete_key(&first, &last, 4);
-    print_forwards(&first, &last);
-    printf("\n");
+    delete_last(&first, &last);
+    delete_key(&first, &last, 20);
 
-    return 0;
+    fprint(first);
+    bprint(last);
+
+    search(&first, &last, 10);
 }
